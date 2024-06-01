@@ -1,15 +1,21 @@
 package ro.araducanu.rentconnect.components
 
 import android.util.Log
-import android.widget.CheckBox
+import android.widget.Spinner
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,25 +23,28 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -45,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -56,7 +66,6 @@ import ro.araducanu.rentconnect.R
 import ro.araducanu.rentconnect.ui.theme.BackgroundColor
 import ro.araducanu.rentconnect.ui.theme.BlackText
 import ro.araducanu.rentconnect.ui.theme.PrimaryBlue
-import ro.araducanu.rentconnect.ui.theme.White
 import ro.araducanu.rentconnect.ui.theme.componentShape
 import androidx.compose.material.Text as Text
 @Composable
@@ -96,7 +105,12 @@ fun HeadingTextComponent(value : String) {
 }
 
 @Composable
-fun MyTextField( labelValue : String , painterResource : Painter) {
+fun MyTextField(
+    labelValue: String,
+    painterResource: Painter,
+    onTextSelected: (String) -> Unit,
+    errorStatus: Boolean
+) {
 
     val textValue = remember {
         mutableStateOf("")
@@ -114,16 +128,22 @@ fun MyTextField( labelValue : String , painterResource : Painter) {
             cursorColor =  PrimaryBlue,
             backgroundColor = BackgroundColor
         ),
-        keyboardOptions = KeyboardOptions.Default,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        singleLine = true,
+        maxLines = 1,
         onValueChange = {
             textValue.value = it
+            onTextSelected(it)
         },
+
         leadingIcon = {
             Icon(
                 painter = painterResource,
                 contentDescription = ""
             )
-        }
+        },
+        isError = !errorStatus
+
     )
 
 }
@@ -132,6 +152,7 @@ fun MyTextField( labelValue : String , painterResource : Painter) {
 fun PasswordTextField(
     labelValue: String,
     painterResource: Painter,
+    onTextSelected: (String) -> Unit,
     errorStatus: Boolean = false
 ) {
 
@@ -167,6 +188,7 @@ fun PasswordTextField(
         value = password.value,
         onValueChange = {
             password.value = it
+            onTextSelected(it)
         },
         leadingIcon = {
             Icon(painter = painterResource, contentDescription = "")
@@ -191,13 +213,16 @@ fun PasswordTextField(
 
         },
         visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+        isError = !errorStatus
     )
 }
 
 @Composable
 fun CheckboxComponent(
     value: String,
-    onTextSelected: (String) -> Unit
+    onTextSelected: (String) -> Unit,
+    errorStatus : Boolean = false,
+    onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -213,11 +238,12 @@ fun CheckboxComponent(
         Checkbox(checked = checkedState.value,
             onCheckedChange = {
                 checkedState.value = !checkedState.value
-                //onCheckedChange.invoke(it)
+                onCheckedChange.invoke(it)
             })
 
         ClickableTextComponent(value = value, onTextSelected)
     }
+
 }
 
 @Composable
@@ -324,44 +350,6 @@ fun DividerTextComponent() {
 }
 
 
-@Composable
-fun ClickableLoginTextComponent(onTextSelected : (String) -> Unit) {
-    val initialText = "Already have an account? "
-    val loginText = "Login"
-
-    val annotatedString = buildAnnotatedString {
-        append(initialText)
-        withStyle(style = SpanStyle(color = PrimaryBlue)) {
-            pushStringAnnotation(tag = loginText, annotation = loginText)
-            append(loginText)
-        }
-    }
-
-    ClickableText(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 40.dp),
-        style = TextStyle(
-            fontSize = 21.sp,
-            fontWeight = FontWeight.Normal,
-            fontStyle = FontStyle.Normal,
-            textAlign = TextAlign.Center
-        ),
-        text = annotatedString,
-        onClick = { offset ->
-
-        annotatedString.getStringAnnotations(offset, offset)
-            .firstOrNull()?.also { span ->
-                Log.d("ClickableTextComponent", "{${span.item}}")
-
-                if(span.item == loginText)
-                {
-                    onTextSelected(span.item)
-                }
-            }
-
-    })
-}
 
 @Composable
 fun UnderLinedTextComponent(value: String) {

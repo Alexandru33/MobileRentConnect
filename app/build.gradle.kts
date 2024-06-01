@@ -3,6 +3,12 @@ plugins {
     id("org.jetbrains.kotlin.android")
 
 
+    // Add the Google services Gradle plugin
+
+    id("com.google.gms.google-services")
+
+
+
 }
 
 android {
@@ -64,7 +70,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
-    implementation(platform("com.google.firebase:firebase-bom:32.0.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
 
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-analytics")
 }
