@@ -8,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 
 import ro.araducanu.rentconnect.data.rules.Validator
 import ro.araducanu.rentconnect.data.signup.RegistrationUIState
+import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
+import ro.araducanu.rentconnect.navigation.Screen
 
 
 class SignupViewModel : ViewModel() {
@@ -140,15 +142,31 @@ class SignupViewModel : ViewModel() {
                 Log.d(TAG, " isSuccessful = ${it.isSuccessful}")
 
                 signUpInProgress.value = false
-//                if (it.isSuccessful) {
-//                    PostOfficeAppRouter.navigateTo(Screen.HomeScreen)
-//                }
+                if (it.isSuccessful) {
+                    RentConnectAppRouter.navigateTo(Screen.SearchScreen)
+                }
             }
             .addOnFailureListener {
                 Log.d(TAG, "Inside_OnFailureListener")
                 Log.d(TAG, "Exception= ${it.message}")
                 Log.d(TAG, "Exception= ${it.localizedMessage}")
             }
+    }
+
+    fun logout(){
+        val firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.signOut()
+        val authStateListener = AuthStateListener{
+            if(it.currentUser == null){
+                Log.d(TAG, "Inside_logout")
+                RentConnectAppRouter.navigateTo(Screen.LoginScreen)
+            }
+            else{
+                Log.d(TAG, "Inside_logout_failure")
+            }
+        }
+
+        firebaseAuth.addAuthStateListener(authStateListener)
     }
 
 

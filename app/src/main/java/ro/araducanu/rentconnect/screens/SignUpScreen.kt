@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import ro.araducanu.rentconnect.data.signup.SignupUIEvent
 import ro.araducanu.rentconnect.data.signup.SignupViewModel
 import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
 import ro.araducanu.rentconnect.navigation.Screen
+import ro.araducanu.rentconnect.navigation.SystemBackButtonHandler
 
 @Composable
 fun SignUpScreen(signupViewModel: SignupViewModel = viewModel() ) {
@@ -86,7 +88,13 @@ fun SignUpScreen(signupViewModel: SignupViewModel = viewModel() ) {
             DividerTextComponent()
             ClickableLoginTextComponent(tryingToLogin = true, onTextSelected = { RentConnectAppRouter.navigateTo(Screen.LoginScreen)})
 
+            SystemBackButtonHandler {
+                RentConnectAppRouter.navigateBack()
+            }
 
+        }
+        if(signupViewModel.signUpInProgress.value) {
+            CircularProgressIndicator()
         }
 
     }

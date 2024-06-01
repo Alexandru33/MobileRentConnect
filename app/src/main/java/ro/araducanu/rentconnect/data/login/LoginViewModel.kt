@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import ro.araducanu.rentconnect.data.rules.Validator
+import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
+import ro.araducanu.rentconnect.navigation.Screen
 
 
 class LoginViewModel : ViewModel() {
@@ -71,10 +73,10 @@ class LoginViewModel : ViewModel() {
                 Log.d(TAG,"Inside_login_success")
                 Log.d(TAG,"${it.isSuccessful}")
 
-//                if(it.isSuccessful){
-//                    loginInProgress.value = false
-//                    PostOfficeAppRouter.navigateTo(Screen.HomeScreen)
-//                }
+                if(it.isSuccessful){
+                    loginInProgress.value = false
+                    RentConnectAppRouter.navigateTo(Screen.SearchScreen)
+                }
             }
             .addOnFailureListener {
                 Log.d(TAG,"Inside_login_failure")

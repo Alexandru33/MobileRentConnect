@@ -2,6 +2,7 @@ package ro.araducanu.rentconnect.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +26,7 @@ import ro.araducanu.rentconnect.components.ClickableLoginTextComponent
 import ro.araducanu.rentconnect.components.UnderLinedTextComponent
 import ro.araducanu.rentconnect.data.login.LoginUIEvent
 import ro.araducanu.rentconnect.data.login.LoginViewModel
+import ro.araducanu.rentconnect.navigation.SystemBackButtonHandler
 
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
@@ -90,8 +92,17 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 ClickableLoginTextComponent(tryingToLogin = false, onTextSelected = {
                     RentConnectAppRouter.navigateTo(Screen.SignUpScreen)
                 })
+
+                SystemBackButtonHandler {
+                    RentConnectAppRouter.navigateBack()
+                }
+
+            }
+            if(loginViewModel.loginInProgress.value) {
+                CircularProgressIndicator()
             }
         }
+
 
 
     }
