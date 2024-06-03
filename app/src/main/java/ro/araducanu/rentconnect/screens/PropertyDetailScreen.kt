@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import ro.araducanu.rentconnect.components.MySearchBarComponent
-import ro.araducanu.rentconnect.components.PropertiesList
-import ro.araducanu.rentconnect.data.models.propertyList
+import ro.araducanu.rentconnect.components.PropertyDetailComponent
+import ro.araducanu.rentconnect.data.models.propertyLongDummy
 
 @Composable
-fun SearchScreen() {
+fun PropertyDetailScreen() {
+
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -26,14 +26,14 @@ fun SearchScreen() {
         ){
             //TopCardComponent()
             //Spacer(modifier = Modifier.height(100.dp))
-            MySearchBarComponent()
-            PropertiesList(propertiesList = propertyList)
+            PropertyDetailComponent(propertyLong = propertyLongDummy)
         }
     }
+
 }
 
 @Composable
 @Preview
-fun SearchScreenPreview() {
-    SearchScreen()
+fun PropertyDetailScreenPreview() {
+    PropertyDetailScreen()
 }

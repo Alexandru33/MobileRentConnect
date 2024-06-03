@@ -25,7 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import ro.araducanu.rentconnect.components.MyBottomNavigationBarComponent
-import ro.araducanu.rentconnect.components.MyBottomNavigationBarPreview
+import ro.araducanu.rentconnect.components.TopCardComponent
+//import ro.araducanu.rentconnect.components.MyBottomNavigationBarPreview
 import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
 import ro.araducanu.rentconnect.navigation.Screen
 import ro.araducanu.rentconnect.screens.AddScreen
@@ -67,11 +68,21 @@ fun RentConnectApp() {
                 currentScreen !is Screen.LoginScreen
             )
                 MyBottomNavigationBarComponent(selected)
+        },
+        topBar = {
+            if (currentScreen !is Screen.StartScreen &&
+                currentScreen !is Screen.SignUpScreen &&
+                currentScreen !is Screen.LoginScreen
+            )
+                TopCardComponent()
+
         }
     )
     {innerPadding ->
         Surface(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
             color = White
         ) {
             Crossfade(

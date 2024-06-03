@@ -60,6 +60,7 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.activity:activity-compose:$composeVersion")
+    implementation("androidx.compose.material3:material3:1.3.0-beta01")
     implementation("androidx.compose.material:material:$composeVersion")
     implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
     implementation("androidx.compose.material:material-icons-extended:$composeVersion")
@@ -74,4 +75,18 @@ dependencies {
 
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-analytics")
+
+    implementation ("com.google.accompanist:accompanist-pager:0.28.0")
+    implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")
+    implementation("io.coil-kt:coil-compose:2.1.0") // Check for the latest version
+
+    // Preview dependencies
+    debugImplementation("androidx.compose.ui:ui-tooling:1.1.0")
+
+    // Testing dependencies
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.1.0")
+
 }
