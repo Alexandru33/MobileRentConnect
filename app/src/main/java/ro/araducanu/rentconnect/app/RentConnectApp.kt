@@ -1,5 +1,7 @@
 package ro.araducanu.rentconnect.app
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,10 +31,14 @@ import ro.araducanu.rentconnect.components.TopCardComponent
 //import ro.araducanu.rentconnect.components.MyBottomNavigationBarPreview
 import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
 import ro.araducanu.rentconnect.navigation.Screen
+import ro.araducanu.rentconnect.screens.AddNewDetailsScreen
 import ro.araducanu.rentconnect.screens.AddScreen
 import ro.araducanu.rentconnect.screens.ContractsScreen
 import ro.araducanu.rentconnect.screens.LoginScreen
 import ro.araducanu.rentconnect.screens.ProfileScreen
+import ro.araducanu.rentconnect.screens.PropertyDetailScreen
+import ro.araducanu.rentconnect.screens.PropertyEditScreen
+import ro.araducanu.rentconnect.screens.PropertyModifyScreen
 import ro.araducanu.rentconnect.screens.SearchScreen
 import ro.araducanu.rentconnect.screens.SignUpScreen
 import ro.araducanu.rentconnect.screens.StartScreen
@@ -42,6 +48,7 @@ import ro.araducanu.rentconnect.screens.ViewingsScreen
 import ro.araducanu.rentconnect.ui.theme.White
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RentConnectApp() {
 
@@ -90,6 +97,21 @@ fun RentConnectApp() {
                 label = ""
             ) { currentState ->
                 when (currentState.value) {
+
+                    is Screen.PropertyModifyScreen -> {
+                        PropertyModifyScreen()
+                    }
+
+                    is Screen.PropertyEditScreen -> {
+                        PropertyEditScreen()
+                    }
+
+                    is Screen.PropertyDetailScreen -> {
+                        PropertyDetailScreen()
+                    }
+                    is Screen.AddNewDetailsScreen -> {
+                        AddNewDetailsScreen()
+                    }
                     is Screen.SignUpScreen -> {
                         SignUpScreen()
                     }
@@ -134,6 +156,7 @@ fun RentConnectApp() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun RentConnectAppPreview() {

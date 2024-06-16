@@ -1,5 +1,7 @@
 package ro.araducanu.rentconnect.data.models
 
+import com.google.firebase.firestore.IgnoreExtraProperties
+
 data class PropertyShort(
     val rating : Double,
     val reviews : Int,
@@ -11,33 +13,66 @@ data class PropertyShort(
     // TODO: Add image resource and unique identifier
 )
 
+
+@IgnoreExtraProperties
 data class PropertyLong(
-    val type : String ,
-    val description : String,
-    val yearOfConstruction : Int,
-    val floor : String,
-    val rating : Double,
-    val reviews : Int,
-    val title: String,
-    val location : String,
-    val rooms : Int,
-    val size : Int,
-    val price : String,
-    val id : String,
-    val phone: String
+    var type : String ,
+    var description : String,
+    var yearOfConstruction : Int,
+    var floor : String,
+    var rating : Double,
+    var reviews : Int,
+    var title: String,
+    var location : String,
+    var rooms : Int,
+    var size : Int,
+    var price : String,
+    var id : String? = null,
+    var phone: String,
+    var email : String
 
 
-    // TODO: Add image list resource and unique identifier
-)
+){
+    constructor() : this (
+        "",
+        "",
+        0,
+        "",
+        0.0,
+        0,
+        "",
+        "",
+        0,
+        0,
+        "",
+        null,
+        "",
+        ""
+    )
 
-val propertyList = listOf<PropertyShort>(
-    PropertyShort( 4.5, 59, "Apartament 3 camere Lujerului", "Bucharest, Romania", 3, 76 , "450"),
-    PropertyShort( 4.2, 69, "Apartament 2 camere Politehnica", "Bucharest, Romania", 2, 46 , "350"),
-    PropertyShort( 4.5, 78, "Apartament 4 camere Giulesti", "Bucharest, Romania", 4, 71 , "560"),
-    PropertyShort( 4.5, 78, "Apartament 4 camere Piata Sudului", "Bucharest, Romania", 4, 71 , "560"),
-    PropertyShort( 4.5, 78, "Apartament 4 camere Crangasi", "Bucharest, Romania", 4, 71 , "560")
+    fun toMap() : Map<String, Any?> {
+        return mapOf(
 
-)
+            "type" to type ,
+            "description" to description,
+            "yearOfConstruction" to yearOfConstruction,
+            "floor" to floor,
+            "rating" to rating,
+            "reviews" to reviews,
+            "title" to title,
+            "location" to location,
+            "rooms" to rooms,
+            "size" to size,
+            "price" to price,
+            "id"  to id,
+            "phone" to phone,
+            "email" to email
+
+        )
+    }
+}
+
+
 
 val propertyLongDummy : PropertyLong = PropertyLong(
     "Apartment",
@@ -56,7 +91,12 @@ val propertyLongDummy : PropertyLong = PropertyLong(
     70,
     "400",
     "UNIQUEIDENTIFIERDUMMY123456",
-    "0745498322"
+    "0745498322",
+    "radualex@gmail.com"
+)
+val propertyList = listOf<PropertyLong>(
+    propertyLongDummy,
+    propertyLongDummy
 )
 
 val propertyDummy : PropertyShort = PropertyShort( 4.2, 69, "Apartament 2 camere Politehnica", "Bucharest, Romania", 2, 46 , "350")

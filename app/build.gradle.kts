@@ -53,6 +53,8 @@ android {
 
 dependencies {
 
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.0")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.7")
     val composeVersion = "1.4.2"
 
     implementation("androidx.core:core-ktx:1.10.0")
@@ -75,6 +77,7 @@ dependencies {
 
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
 
     implementation ("com.google.accompanist:accompanist-pager:0.28.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.28.0")

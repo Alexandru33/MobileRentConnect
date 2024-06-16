@@ -6,6 +6,7 @@ import java.util.Stack
 
 
 sealed class Screen {
+    object PropertyModifyScreen : Screen()
 
     object SignUpScreen : Screen()
     object TermsAndConditionsScreen : Screen()
@@ -18,6 +19,12 @@ sealed class Screen {
     object ContractsScreen : Screen()
     object StartScreen : Screen()
 
+    object AddNewDetailsScreen : Screen()
+
+    object PropertyDetailScreen : Screen()
+
+    object PropertyEditScreen : Screen()
+
 
 }
 object RentConnectAppRouter {
@@ -26,8 +33,18 @@ object RentConnectAppRouter {
         push(Screen.SearchScreen)
     }
 
+
     var currentScreen : MutableState<Screen> = mutableStateOf(Screen.StartScreen)
     var previousScreen : Screen? = null
+
+    fun makeScreenStackEmpty() {
+        while ( !screenStack.isEmpty() )
+        {
+            screenStack.pop()
+        }
+
+        screenStack.push(Screen.StartScreen)
+    }
 
     fun navigateTo( destination : Screen)
     {

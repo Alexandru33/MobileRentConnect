@@ -1,5 +1,13 @@
 package ro.araducanu.rentconnect.components
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,7 +35,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.Elevator
-import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.MonetizationOn
@@ -40,29 +47,39 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
-import ro.araducanu.rentconnect.R
 import ro.araducanu.rentconnect.data.models.PropertyLong
 import ro.araducanu.rentconnect.data.models.propertyLongDummy
 import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
 import com.google.accompanist.pager.rememberPagerState
+import com.google.firebase.auth.FirebaseAuth
+import ro.araducanu.rentconnect.data.viewmodels.PropertyImageViewModel
+import ro.araducanu.rentconnect.data.viewmodels.ViewingViewModel
 import ro.araducanu.rentconnect.ui.theme.BlackText
 import ro.araducanu.rentconnect.ui.theme.GrayIcons
 import ro.araducanu.rentconnect.ui.theme.PrimaryBlue
@@ -71,27 +88,42 @@ import ro.araducanu.rentconnect.ui.theme.White
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ImageCarousel() {
+fun ImageCarousel(
+    propertyImageViewModel: PropertyImageViewModel = viewModel(),
+    propertyID : String = ""
+) {
+    val imageUrls by propertyImageViewModel.images.observeAsState(initial = emptyList())
+
     val pagerState = rememberPagerState(initialPage = 0)
-    val imageSlider = listOf(
-        R.drawable.apartament_image,
-        R.drawable.apartament_image,
-        R.drawable.apartament_image
 
-    )
+    LaunchedEffect(propertyID) {
+        propertyImageViewModel.fetchImageUrls(propertyID)
+    }
 
-    // Oferă o listă de painteri care sunt memorate pentru a preveni recrearea lor la fiecare reconstruire.
-    val painters = imageSlider.map { painterResource(id = it) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            yield()
-            delay(2600)
-            pagerState.animateScrollToPage(
-                page = (pagerState.currentPage + 1) % (pagerState.pageCount)
-            )
+    LaunchedEffect(imageUrls) {
+        if (imageUrls.isNotEmpty()) {
+            while (true) {
+                delay(2600)
+                pagerState.animateScrollToPage(
+                    page = (pagerState.currentPage + 1) % imageUrls.size
+                )
+            }
         }
     }
+
+
+
+
+
+//    LaunchedEffect(Unit) {
+//        while (true) {
+//            yield()
+//            delay(2600)
+//            pagerState.animateScrollToPage(
+//                page = (pagerState.currentPage + 1) % (pagerState.pageCount)
+//            )
+//        }
+//    }
     Column {
         Box(
             modifier = Modifier
@@ -100,13 +132,13 @@ fun ImageCarousel() {
                 .clip(shape = RoundedCornerShape(0, 0, 10, 10))
         ) {
             HorizontalPager(
-                count = painters.size,
+                count = imageUrls.size,
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 Image(
-                    painter = painters[page],
-                    contentDescription = null,
+                    painter = rememberAsyncImagePainter(imageUrls[page]),
+                    contentDescription = "PropertyImage",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -141,12 +173,11 @@ fun ImageCarousel() {
 fun PropertyLongTextCard(
     propertyLong: PropertyLong
 ) {
-    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 20.dp)
-            .verticalScroll(scrollState)
+            //.verticalScroll(rememberScrollState())
 
 
     ) {
@@ -230,11 +261,32 @@ fun DetailRow(
 
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomButtonsDetailsPropertyComponent(
     propertyLong: PropertyLong
 )
 {
+
+    val context = LocalContext.current
+    var hasCallPermission by remember { mutableStateOf(false) }
+
+
+
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        hasCallPermission = isGranted
+    }
+
+    LaunchedEffect(Unit) {
+        hasCallPermission = context.checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
+    }
+
+
+
+
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -242,7 +294,9 @@ fun BottomButtonsDetailsPropertyComponent(
 
     ){
         Button(
-            onClick = { /* Do nothing as button is inactive */ },
+            onClick =
+            {
+            },
             enabled = true,
             shape = RoundedCornerShape(50),
             colors = ButtonDefaults.buttonColors( PrimaryBlue),
@@ -275,9 +329,18 @@ fun BottomButtonsDetailsPropertyComponent(
                     modifier = Modifier.padding(start = 5.dp) // Apply padding to the text instead
                 )
             }
+
         }
         Button(
-            onClick = { /* Do nothing as button is inactive */ },
+            onClick = {
+                if (hasCallPermission) {
+                    val intent = Intent(Intent.ACTION_CALL).apply {
+                        data = Uri.parse("tel:${propertyLong.phone}")
+                    }
+                    context.startActivity(intent)
+                } else {
+                    launcher.launch(Manifest.permission.CALL_PHONE)
+                } },
             enabled = true,
             shape = RoundedCornerShape(50),
             colors = ButtonDefaults.buttonColors( White),
@@ -313,25 +376,61 @@ fun BottomButtonsDetailsPropertyComponent(
         }
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PropertyDetailComponent(
-    propertyLong : PropertyLong
+    propertyLong: PropertyLong?,
+
+    viewingViewModel : ViewingViewModel = viewModel()
 )
 {
 
+    val viewingsOfThisProperty by viewingViewModel.viewingsList.observeAsState(initial = emptyList())
+
+
+    viewingViewModel.getViewingsOfPropertyIdWithStatus(propertyLong?.id!!, "free")
+
     Column (
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ){
-        ImageCarousel()
-        PropertyLongTextCard(propertyLong = propertyLongDummy)
+        ImageCarousel(PropertyImageViewModel(), propertyLong.id!!)
+        PropertyLongTextCard(propertyLong = propertyLong)
         Spacer(modifier = Modifier.weight(1f))
-        BottomButtonsDetailsPropertyComponent(propertyLong = propertyLongDummy)
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            viewingsOfThisProperty.forEach { viewing ->
+                ViewingCard(viewing
+                ) {
+                    viewingViewModel.updateViewingStatus(
+                        viewing.idProperty,
+                        viewing.date,
+                        viewing.time,
+                        "booked",
+                        FirebaseAuth.getInstance().currentUser?.email!!
+                    )
+                    {
+                        viewingViewModel.getViewingsOfPropertyIdWithStatus(propertyLong.id!!, "free")
+                    }
+
+
+
+
+
+                }
+                Spacer(modifier = Modifier.height(8.dp)) // Add space between cards
+            }
+        }
+
+
+        BottomButtonsDetailsPropertyComponent(propertyLong = propertyLong)
     }
 }
 
 
-@Composable
-@Preview
-fun PropertyDetailComponentPreview(){
-    PropertyDetailComponent(propertyLong = propertyLongDummy)
-}
+

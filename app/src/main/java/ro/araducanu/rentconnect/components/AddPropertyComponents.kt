@@ -3,9 +3,11 @@ package ro.araducanu.rentconnect.components
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,8 +22,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -37,8 +41,10 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.PlusOne
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Square
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.TypeSpecimen
 import androidx.compose.material3.Button
@@ -65,38 +71,79 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ro.araducanu.rentconnect.R
-import ro.araducanu.rentconnect.data.models.PropertyLong
+import ro.araducanu.rentconnect.data.add.AddUIEvent
+import ro.araducanu.rentconnect.data.add.AddViewModel
+import ro.araducanu.rentconnect.data.user.UserViewModel
+import ro.araducanu.rentconnect.data.viewmodels.PropertyImageViewModel
+import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
+import ro.araducanu.rentconnect.navigation.Screen
+import ro.araducanu.rentconnect.screens.AddNewDetailsScreen
 import ro.araducanu.rentconnect.ui.theme.BlackText
 import ro.araducanu.rentconnect.ui.theme.GrayIcons
 import ro.araducanu.rentconnect.ui.theme.PrimaryBlue
 import ro.araducanu.rentconnect.ui.theme.White
+import java.lang.Integer.parseInt
 
 
 @Composable
-fun AddPropertyComponent() {
+fun AddPropertyComponent(addViewModel: AddViewModel = viewModel()) {
 Column(
-    modifier = Modifier.fillMaxWidth()
+    modifier = Modifier
+        .fillMaxWidth()
+        .background(Color.Transparent)
+        //.verticalScroll(rememberScrollState())
 ) {
 
-    AddTextComponent(labelValue = "Insert Title...", painterResource = Icons.Default.Title, onTextSelected = {} , errorStatus = true)
+    AddTextComponent(labelValue = "Insert Title...", painterResource = Icons.Default.Title,
+        onTextSelected = {
+                         addViewModel.onEvent(AddUIEvent.TitleChanged(it))
+    } , errorStatus = true)
     AddDescriptionComponent(
         labelValue = "Add a Description...",
         painterResource = Icons.Default.Description,
-        onTextSelected = {},
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.DescriptionChanged(it))
+        },
         errorStatus = true
     )
-    AddTextComponent(labelValue = "Address...", painterResource = Icons.Default.Map, onTextSelected = {}, errorStatus = true )
-    AddTextComponent(labelValue = "Insert Type...", painterResource = Icons.Default.TypeSpecimen, onTextSelected = {}, errorStatus = true )
-    AddNumberComponent(labelValue = "Floor no.", painterResource = Icons.Default.Elevator, onTextSelected = {}, errorStatus = true )
-    AddNumberComponent(labelValue = "Year of Construction...", painterResource = Icons.Default.Construction, onTextSelected = {}, errorStatus = true)
-    AddNumberComponent(labelValue = "No. of Rooms...", painterResource = Icons.Default.MeetingRoom, onTextSelected = {}, errorStatus = true)
-    AddNumberComponent(labelValue = "Monthly Rent (in euros)", painterResource = Icons.Default.MonetizationOn, onTextSelected = {}, errorStatus = true)
+    AddTextComponent(labelValue = "Address...", painterResource = Icons.Default.Map,
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.AddressChanged(it))
+        }, errorStatus = true )
+    AddTextComponent(labelValue = "Insert Type...", painterResource = Icons.Default.TypeSpecimen,
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.TypeChanged(it))
+        }, errorStatus = true )
+    AddNumberComponent(labelValue = "Floor no.", painterResource = Icons.Default.Elevator,
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.FloorChanged(it))
+        }, errorStatus = true )
+    AddNumberComponent(labelValue = "Year of Construction...", painterResource = Icons.Default.Construction,
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.YearOfConstructionChanged(Integer.parseInt(it)))
+        }, errorStatus = true)
+    AddNumberComponent(labelValue = "No. of Rooms...", painterResource = Icons.Default.MeetingRoom,
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.RoomsChanged(Integer.parseInt(it)) )
+        }, errorStatus = true)
+    AddNumberComponent(labelValue = "Monthly Rent (in euros)", painterResource = Icons.Default.MonetizationOn,
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.PriceChanged(it))
+        }, errorStatus = true)
+    AddNumberComponent(labelValue = "Size (in square meters)", painterResource = Icons.Default.Square,
+        onTextSelected = {
+            addViewModel.onEvent(AddUIEvent.SizeChanged(Integer.parseInt(it)))
+        }, errorStatus = true)
 }
 
 }
@@ -137,7 +184,8 @@ fun AddNumberComponent(labelValue: String, painterResource: ImageVector, onTextS
             keyboardType = KeyboardType.Number ),
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp)
+            .height(50.dp)
+            .background(Color.Transparent, RoundedCornerShape(10))
     )
 
 }
@@ -181,7 +229,8 @@ fun AddTextComponent(
             isError = !errorStatus,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .height(50.dp)
+                .background(Color.Transparent, RoundedCornerShape(10))
         )
 
     }
@@ -225,46 +274,17 @@ fun AddDescriptionComponent(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 40.dp)
+            .background(Color.Transparent, RoundedCornerShape(10))
     )
 
 }
-@Composable
-fun DetailRowInput(
-    icon : ImageVector,
-    key : String,
-    value : String = "",
-){
-    Row (
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(0.5.dp, GrayIcons, RoundedCornerShape(10))
-            .height(30.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
 
-        ){
-        Icon(
-            icon,
-            contentDescription = null,
-            modifier  = Modifier
-                .padding(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 2.dp)
-                .size(20.dp)
-        )
-        Text(
-            text = key
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = value,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-
-    }
-}
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ImageCarouselPlane(imageList: List<Uri>) {
+fun ImageCarouselPlane(imageList: List<Uri>, propertyImageViewModel: PropertyImageViewModel = viewModel()) {
+
+    val imageList  = propertyImageViewModel.imageList
     val pagerState = rememberPagerState(initialPage = 0)
 
     Column {
@@ -305,20 +325,23 @@ fun ImageCarouselPlane(imageList: List<Uri>) {
                 activeColor = Color.White,
                 inactiveColor = Color.Gray
             )
+
+            ImagePickerButton(
+                propertyImageViewModel = propertyImageViewModel,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            )
         }
     }
 }
 
 @Composable
-fun ImagePickerButton(updateImageList: (Uri) -> Unit) {
+fun ImagePickerButton(propertyImageViewModel: PropertyImageViewModel = viewModel() , modifier : Modifier) {
     val context = LocalContext.current
     val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.data?.also { uri ->
-                    updateImageList(uri)
-                }
-            }
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let { propertyImageViewModel.addImage(it) }
         }
     IconButton(
         modifier = Modifier
@@ -330,10 +353,7 @@ fun ImagePickerButton(updateImageList: (Uri) -> Unit) {
             disabledContainerColor = Color.LightGray
         ),
         onClick = {
-            launcher.launch(Intent(Intent.ACTION_GET_CONTENT).apply {
-                type = "image/*"
-                addCategory(Intent.CATEGORY_OPENABLE)
-            })
+            launcher.launch("image/*")
         }) {
         androidx.compose.material3.Icon(Icons.Default.Add, contentDescription = "Add Image")
     }
@@ -344,6 +364,10 @@ fun ImagePickerButton(updateImageList: (Uri) -> Unit) {
 
 @Composable
 fun BottomButtonsAddPropertyComponent(
+
+    addViewModel: AddViewModel = viewModel(),
+    userViewModel: UserViewModel = viewModel(),
+    propertyImageViewModel: PropertyImageViewModel = viewModel()
 )
 {
     Row (
@@ -388,7 +412,20 @@ fun BottomButtonsAddPropertyComponent(
             }
         }
         Button(
-            onClick = { /* Do nothing as button is inactive */ },
+            onClick = {
+                addViewModel.addUIState.value.phone = userViewModel.userUIState.value.phone
+                addViewModel.addUIState.value.email = userViewModel.userUIState.value.email
+
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    addViewModel.onEvent(AddUIEvent.SubmitButtonClicked)
+                    while ( addViewModel.addUIState.value.id == "")
+                    {
+                        //Log.d("Alex" , "Idul este ${addViewModel.addUIState.value.id}")
+                    }
+                    propertyImageViewModel.uploadImagesForNewModel(addViewModel.addUIState.value.id)
+                }
+                      },
             enabled = true,
             shape = RoundedCornerShape(50),
             colors = ButtonDefaults.buttonColors( White),
@@ -425,35 +462,43 @@ fun BottomButtonsAddPropertyComponent(
     }
 }
 
-
 @Composable
-@Preview
-fun AddPropertyComponentPreview() {
-    //AddPropertyComponent()
-    var images = remember { mutableStateListOf<Uri>() }
-
-    Scaffold(
-        // Define your bottom bar here if needed
-    ) { innerPadding ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding), color = Color.White
+fun AddNewPropertyButton() {
+    Button(
+        onClick = {
+                  RentConnectAppRouter.navigateTo(Screen.AddNewDetailsScreen)
+        },
+        enabled = true,
+        shape = RoundedCornerShape(50),
+        colors = ButtonDefaults.buttonColors( White),
+        modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp, top = 16.dp, bottom = 16.dp)
+            .wrapContentHeight()
+            .border(1.dp, PrimaryBlue, RoundedCornerShape(50))
+            .height(40.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(50))
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         ) {
-            Column {
-                Box {
-                    ImageCarouselPlane(images)
 
-                    ImagePickerButton { newImageUri ->
-                        images.add(newImageUri)
-                    }
-                }
-                AddPropertyComponent()
-                Spacer( modifier = Modifier.weight(1f) )
-                BottomButtonsAddPropertyComponent()
+            Icon(
+                Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                tint = Color.Black
+            )
 
+            Spacer(modifier = Modifier.width(10.dp))
 
-            }
+            Text(
+                text = "Add a new Property",
+                color = BlackText, // Use the appropriate color value
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 5.dp) // Apply padding to the text instead
+            )
         }
     }
 }

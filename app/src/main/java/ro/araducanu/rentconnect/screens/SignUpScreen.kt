@@ -27,12 +27,14 @@ import ro.araducanu.rentconnect.components.NormalTextComponent
 import ro.araducanu.rentconnect.components.PasswordTextField
 import ro.araducanu.rentconnect.data.signup.SignupUIEvent
 import ro.araducanu.rentconnect.data.signup.SignupViewModel
+import ro.araducanu.rentconnect.data.user.UserUIEvent
+import ro.araducanu.rentconnect.data.user.UserViewModel
 import ro.araducanu.rentconnect.navigation.RentConnectAppRouter
 import ro.araducanu.rentconnect.navigation.Screen
 import ro.araducanu.rentconnect.navigation.SystemBackButtonHandler
 
 @Composable
-fun SignUpScreen(signupViewModel: SignupViewModel = viewModel() ) {
+fun SignUpScreen(signupViewModel: SignupViewModel = viewModel() , userViewModel: UserViewModel = viewModel() ) {
 
     Surface(
         color = Color.White,
@@ -50,18 +52,29 @@ fun SignUpScreen(signupViewModel: SignupViewModel = viewModel() ) {
             MyTextField(labelValue = stringResource(R.string.first_name) , painterResource(id = R.drawable.profile),
                 onTextSelected = {
                     signupViewModel.onEvent(SignupUIEvent.FirstNameChanged(it))
+                    userViewModel.onEvent(UserUIEvent.FirstNameChanged(it) )
                 },
                 errorStatus = signupViewModel.registrationUIState.value.firstNameError)
 
             MyTextField(labelValue = stringResource(R.string.last_name) , painterResource(id = R.drawable.profile),
                 onTextSelected = {
                     signupViewModel.onEvent((SignupUIEvent.LastNameChanged(it)))
+                    userViewModel.onEvent(UserUIEvent.LastNameChanged(it))
                 },
                 errorStatus = signupViewModel.registrationUIState.value.lastNameError
                 )
+
+            MyTextField(labelValue = stringResource(R.string.phone_number) , painterResource(id = R.drawable.profile),
+                onTextSelected = {
+                    userViewModel.onEvent(UserUIEvent.PhoneChanged(it))
+                },
+                errorStatus = true
+            )
+
             MyTextField(labelValue = stringResource(R.string.e_mail) , painterResource(id = R.drawable.message),
                 onTextSelected = {
                     signupViewModel.onEvent(SignupUIEvent.EmailChanged(it))
+                    userViewModel.onEvent(UserUIEvent.EmailChanged(it))
                 },
                 errorStatus = signupViewModel.registrationUIState.value.emailError)
             PasswordTextField(labelValue = "Password" , painterResource(id = R.drawable.lock),
@@ -81,7 +94,10 @@ fun SignUpScreen(signupViewModel: SignupViewModel = viewModel() ) {
             Spacer(modifier = Modifier.height(80.dp))
             ButtonComponent(
                 value = stringResource(R.string.only_create_account),
-                onButtonClicked = { signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked) },
+                onButtonClicked = {
+                    signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked)
+                    userViewModel.onEvent(UserUIEvent.CreateButtonClicked)
+                                  },
                 isEnabled = signupViewModel.allValidationsPassed.value)
             Spacer(modifier = Modifier.height(20.dp))
 

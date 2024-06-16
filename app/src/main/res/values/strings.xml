@@ -18,4 +18,5 @@
     <string name="last_name">Last Name</string>
     <string name="register">Register</string>
     <string name="sign_up">Sign Up</string>
+    <string name="phone_number">Phone Number</string>
 </resources>

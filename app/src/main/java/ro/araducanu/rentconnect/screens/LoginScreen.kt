@@ -26,10 +26,12 @@ import ro.araducanu.rentconnect.components.ClickableLoginTextComponent
 import ro.araducanu.rentconnect.components.UnderLinedTextComponent
 import ro.araducanu.rentconnect.data.login.LoginUIEvent
 import ro.araducanu.rentconnect.data.login.LoginViewModel
+import ro.araducanu.rentconnect.data.user.UserUIEvent
+import ro.araducanu.rentconnect.data.user.UserViewModel
 import ro.araducanu.rentconnect.navigation.SystemBackButtonHandler
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), userViewModel: UserViewModel = viewModel()) {
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -57,6 +59,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                     painterResource(id = R.drawable.message),
                     onTextSelected = {
                         loginViewModel.onEvent(LoginUIEvent.EmailChanged(it))
+                        userViewModel.onEvent(UserUIEvent.EmailChanged(it))
                     },
                     errorStatus = loginViewModel.loginUIState.value.emailError
 
@@ -81,6 +84,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                     value = stringResource(id = R.string.login),
                     onButtonClicked = {
                         loginViewModel.onEvent(LoginUIEvent.LoginButtonClicked)
+                        userViewModel.onEvent(UserUIEvent.FetchUserButtonClicked)
                     },
                     isEnabled = loginViewModel.allValidationsPassed.value
                 )
