@@ -62,23 +62,43 @@ class ViewingRepositoryImpl : ViewingRepository {
     }
 
 
-    fun getViewingsOfEmail(email : String?): Flow<List<Viewing>> = callbackFlow {
-        val listener = db.collection("viewings")
-            .whereEqualTo("emailLandlord", email)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    close(e)
-                    return@addSnapshotListener
-                }
+    suspend fun getViewingsOfEmailLandlord (  email : String  ) :List<Viewing>
+    {
 
-                val viewingsList = snapshot?.documents?.mapNotNull {
-                    it.toObject(Viewing::class.java)
-                } ?: listOf()
+        return try {
+            val snapshot = db.collection("viewings")
+                .whereEqualTo("emailLandlord", email)
+                .get()
+                .await()
+            Log.d("Viewing Repo", "fetch viewing for a landlord")
 
-                trySend(viewingsList)
-            }
+            snapshot.documents.mapNotNull { doc -> doc.toObject(Viewing::class.java) }
 
-        awaitClose { listener.remove() }
+        }
+        catch( e: Exception) {
+            Log.e("ViewingRepo", e.stackTraceToString())
+            emptyList()
+        }
+
+    }
+    suspend fun getViewingsOfEmailTenant (  email : String  ) :List<Viewing>
+    {
+
+        return try {
+            val snapshot = db.collection("viewings")
+                .whereEqualTo("emailTenant", email)
+                .get()
+                .await()
+            Log.d("Viewing Repo", "fetch viewing for a tenant")
+
+            snapshot.documents.mapNotNull { doc -> doc.toObject(Viewing::class.java) }
+
+        }
+        catch( e: Exception) {
+            Log.e("ViewingRepo", e.stackTraceToString())
+            emptyList()
+        }
+
     }
 
 //    fun getViewingsOfPropertyId(propertyId : String): Flow<List<Viewing>> = callbackFlow {

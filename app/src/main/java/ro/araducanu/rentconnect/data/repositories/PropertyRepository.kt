@@ -112,6 +112,8 @@ class PropertyRepositoryImpl : PropertyRepository {
         awaitClose { listener.remove() }
     }
 
+
+
     fun getProperties(): Flow<List<PropertyLong>> = callbackFlow {
         val listener = db.collection("properties")
             .addSnapshotListener { snapshot, e ->

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import ro.araducanu.rentconnect.data.models.Viewing
 import ro.araducanu.rentconnect.data.repositories.ViewingRepositoryImpl
@@ -18,6 +19,15 @@ class ViewingViewModel : ViewModel() {
 
     private val _viewingsList = MutableLiveData<List<Viewing>>()
     val viewingsList : LiveData<List<Viewing>> = _viewingsList
+
+
+    private val _landlordViewings = MutableLiveData<List<Viewing>>()
+    val landlordViewings : LiveData<List<Viewing>> = _landlordViewings
+
+
+    private val _tenantViewings = MutableLiveData<List<Viewing>>()
+    val tenantViewings : LiveData<List<Viewing>> = _tenantViewings
+
 
     init {
         _viewingDetails.value = Viewing()
@@ -75,6 +85,32 @@ class ViewingViewModel : ViewModel() {
             Log.d( "VIEWING VIEWMODEL", "viewingsList before  ${_viewingsList.value}")
             _viewingsList.postValue(viewings)
             Log.d( "VIEWING VIEWMODEL", "viewingsList after ${_viewingsList.value}")
+
+        }
+
+    }
+
+    fun getViewingsOfEmailLandlord (email : String )
+    {
+        viewModelScope.launch {
+            val viewings = viewingRepository.getViewingsOfEmailLandlord(email).toList()
+            Log.d( "VIEWING VIEWMODEL", "getting viewings of this property $viewings")
+            Log.d( "VIEWING VIEWMODEL", "viewingsList before  ${_landlordViewings.value}")
+            _landlordViewings.postValue(viewings)
+            Log.d( "VIEWING VIEWMODEL", "viewingsList after ${_landlordViewings.value}")
+
+        }
+
+    }
+
+    fun getViewingsOfEmailTenant (email : String )
+    {
+        viewModelScope.launch {
+            val viewings = viewingRepository.getViewingsOfEmailTenant(email).toList()
+            Log.d( "VIEWING VIEWMODEL", "getting viewings of this property $viewings")
+            Log.d( "VIEWING VIEWMODEL", "viewingsList before  ${_tenantViewings.value}")
+            _tenantViewings.postValue(viewings)
+            Log.d( "VIEWING VIEWMODEL", "viewingsList after ${_tenantViewings.value}")
 
         }
 
